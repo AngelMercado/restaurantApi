@@ -1,15 +1,10 @@
 package com.primeted.springRest.controller;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.Metadata;
-import com.dropbox.core.v2.users.FullAccount;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.primeted.springRest.model.Restaurant;
 import com.primeted.springRest.service.RestaurantService;
-import com.primeted.springRest.storage.DropBoxServiceImpl;
-import com.primeted.springRest.storage.StorageServiceImpl;
+import com.primeted.springRest.storage.StorageService;
 
 @RestController
 @RequestMapping("/apiv1")
@@ -49,18 +37,15 @@ public class RestApiController {
 	@Autowired
 	RestaurantService restaurantService;
 	@Autowired
-	StorageServiceImpl storageServiceImpl;
-	@Autowired
-	DropBoxServiceImpl dropBoxServiceImpl;
+	StorageService storageService;
+	
 	HttpHeaders headers = new HttpHeaders();
 	
-	private static final String ACCESS_TOKEN="3dp7i7TQzHAAAAAAAAAADtD8e8qKiLij-kqlW5SlMeidzMNOs3SlvjRaKJXv-LPC";
 	public RestApiController(){
 		headers.add("Access-Control-Allow-Origin", "*");
 		headers.add("Content-Type", "application/json;charset=UTF-8");
 		headers.add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
 		headers.add("Access-Control-Allow-Headers", "X-Requested-With,content-type");
-       
 	}
 	//-------------------Retrive all restaurants--------------//
 	@RequestMapping(value="/restaurantes",method = RequestMethod.GET)
@@ -185,9 +170,8 @@ public class RestApiController {
 		Map<String,Object> json= new HashMap<String,Object>();
 		String data="";
 		String finalName="";
-		
 		try{
-			finalName=dropBoxServiceImpl.store(file);
+			finalName=storageService.store(file);
 			json.put("status", "succes");
 			json.put("message", "upload file succesfully");
 			json.put("filename",finalName);
@@ -203,26 +187,11 @@ public class RestApiController {
 		}								
 	}
 	@RequestMapping(value="/files/{filename:.+}",method=RequestMethod.GET)
-	public StreamingResponseBody getFile(@PathVariable String filename){
-		//Resource file= storageServiceImpl.loadFile(filename); 
-		final InputStream metaData = dropBoxServiceImpl.loadFilev2(filename);
-		logger.info("METADATA========================================{}",metaData.toString());
-		return (os) -> {
-			readAndWrite(metaData, os);
-		};
-	}
-	
-	public void readAndWrite(InputStream metaData, OutputStream os) {
-		try {
-			IOUtils.copy(metaData,os);
-			metaData.close();
-			os.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+	public ResponseEntity<Resource> getFile(@PathVariable String filename){
+		Resource file= storageService.loadFile(filename);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+				.body(file);
 	}
 	public String toJson(Map<String, Object> json){
 		String data="";

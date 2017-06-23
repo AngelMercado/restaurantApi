@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 
 import com.primeted.springRest.configuration.JpaConfiguration;
 import com.primeted.springRest.configuration.WebConfiguration;
-import com.primeted.springRest.storage.StorageServiceImpl;
+import com.primeted.springRest.storage.StorageService;
 
 
 @Import({WebConfiguration.class,JpaConfiguration.class})
@@ -19,7 +19,7 @@ import com.primeted.springRest.storage.StorageServiceImpl;
 public class SpringBootCRUDApp implements CommandLineRunner{
 	
 	@Resource
-	StorageServiceImpl storageServiceImpl ; 
+	StorageService storageService ; 
 	
 	public static void main(String[] args) {
        SpringApplication.run(SpringBootCRUDApp.class, args);
@@ -27,7 +27,7 @@ public class SpringBootCRUDApp implements CommandLineRunner{
 
 	@Override
 	public void run(String... arg0) throws Exception {
-		storageServiceImpl.init();
+		storageService.init();
 		
 	}
 

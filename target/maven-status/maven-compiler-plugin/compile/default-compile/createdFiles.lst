@@ -1,12 +1,9 @@
-com/primeted/springRest/storage/StorageServiceImpl.class
 com/primeted/springRest/model/Restaurant.class
 com/primeted/springRest/configuration/WebConfiguration.class
-com/primeted/springRest/storage/DropBoxServiceImpl.class
 com/primeted/springRest/service/RestaurantService.class
 com/primeted/springRest/repositories/RestaurantRepository.class
 com/primeted/springRest/controller/RestApiController.class
 com/primeted/springRest/storage/StorageService.class
-com/primeted/springRest/storage/DropBoxService.class
 com/primeted/springRest/controller/AppController.class
 com/primeted/springRest/configuration/JpaConfiguration.class
 com/primeted/springRest/util/CustomErrorType.class
